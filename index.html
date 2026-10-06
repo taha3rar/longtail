@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Long Tail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <div id="flash" aria-hidden="true"></div>
+  <button id="sound-btn" class="icon-btn" aria-label="Toggle sound" title="Sound">🔊</button>
+
+  <main id="app">
+
+    <!-- HOME -->
+    <section id="home" class="screen active">
+      <div class="hero">
+        <svg class="logo-curve" viewBox="0 0 300 80" aria-hidden="true">
+          <path d="M4 8 C 30 8, 40 70, 120 74 S 260 76, 296 76" />
+          <circle cx="250" cy="75.6" r="5" />
+        </svg>
+        <h1>Long Tail</h1>
+        <p class="tagline">The obvious answer loses. Name something real that nobody else would think of.</p>
+      </div>
+
+      <div class="modes">
+        <button class="mode" data-mode="dive">
+          <span class="mode-icon">🤿</span>
+          <span class="mode-name">Dive</span>
+          <span class="mode-desc">7 random prompts</span>
+        </button>
+        <button class="mode" data-mode="daily">
+          <span class="mode-icon">📅</span>
+          <span class="mode-name">Daily</span>
+          <span class="mode-desc" id="daily-desc">Same 7 for everyone today</span>
+        </button>
+        <button class="mode" data-mode="endless">
+          <span class="mode-icon">♾️</span>
+          <span class="mode-name">Endless</span>
+          <span class="mode-desc">Until you miss 3</span>
+        </button>
+        <button class="mode" data-mode="seeded">
+          <span class="mode-icon">🎯</span>
+          <span class="mode-name">Seeded</span>
+          <span class="mode-desc">Same 7 as a friend</span>
+        </button>
+      </div>
+
+      <h2 class="sub">Or pick a category</h2>
+      <div id="categories" class="chips"></div>
+
+      <details class="rules">
+        <summary>How to play</summary>
+        <ul>
+          <li>Each prompt asks you to name something: an animal, a country starting with "K", a Tom Hanks movie.</li>
+          <li>You get <b>25 seconds</b>. Type your answer and hit <kbd>Enter</kbd>. Hit <kbd>Enter</kbd> again to lock it in.</li>
+          <li>If time runs out while you're being asked to confirm, that answer counts.</li>
+          <li>The <b>less famous</b> your (valid) answer, the more points: <span class="t-obvious">Obvious 10</span>, <span class="t-clever">Too Clever 15</span>, <span class="t-common">Common 30</span>, <span class="t-rare">Rare 60</span>, <span class="t-deep">Deep Cut 85</span>, <span class="t-gem">The Gem 100</span>.</li>
+          <li>Every prompt hides one <b>Gem</b>. Find it for 100.</li>
+          <li>Reusing an answer you already played on that prompt only scores <b>Too Clever</b>.</li>
+          <li>Answers and fame come live from Wikidata (how many Wikipedias cover each thing).</li>
+        </ul>
+      </details>
+    </section>
+
+    <!-- SEED PICKER -->
+    <section id="seed" class="screen">
+      <div class="seed-card">
+        <span class="mode-icon">🎯</span>
+        <h2>Seeded dive</h2>
+        <p class="dim">Same seed = same 7 prompts and the same hidden gems. Send the seed (or the link at the end) to a friend and compare scores.</p>
+        <form id="seed-form" autocomplete="off">
+          <div class="input-wrap">
+            <input id="seed-input" type="text" maxlength="40" placeholder="type a seed…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Seed">
+            <button type="button" id="seed-dice" class="dice" aria-label="Random seed" title="Random seed">🎲</button>
+          </div>
+          <div class="seed-actions">
+            <button type="button" id="seed-back">← Back</button>
+            <button type="submit" class="primary big">Continue ⏎</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- LOADING -->
+    <section id="loading" class="screen">
+      <div class="diver" aria-hidden="true"><span>🤿</span></div>
+      <p id="loading-msg">Gathering answers…</p>
+      <p id="loading-sub" class="dim mono"></p>
+    </section>
+
+    <!-- ROUND -->
+    <section id="round" class="screen">
+      <header class="round-head">
+        <div id="progress" class="progress"></div>
+        <span id="round-score" class="score-pill mono">0</span>
+      </header>
+      <p id="round-cat" class="cat-tag"></p>
+      <h2 id="prompt"></h2>
+
+      <div class="timer" id="timer">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="track" cx="60" cy="60" r="52" />
+          <circle class="ring" id="timer-ring" cx="60" cy="60" r="52" />
+        </svg>
+        <span id="timer-num" class="mono">3</span>
+      </div>
+
+      <form id="answer-form" autocomplete="off">
+        <div class="input-wrap" id="input-wrap">
+          <input id="answer" type="text" placeholder="type your answer…" autocomplete="off" autocorrect="off"
+                 autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" aria-label="Your answer">
+          <button type="submit" class="go" aria-label="Submit">⏎</button>
+        </div>
+      </form>
+      <div id="confirm" class="confirm" aria-live="polite"></div>
+      <p id="feedback-line" class="mono" aria-live="polite"></p>
+    </section>
+
+    <!-- ROUND RESULT -->
+    <section id="reveal" class="screen">
+      <div id="hype" class="hype"></div>
+      <div id="reveal-tier" class="tier-badge"></div>
+      <div id="reveal-points" class="points mono"></div>
+      <p id="reveal-answer" class="stagger s1"></p>
+      <p id="reveal-rank" class="mono dim stagger s1"></p>
+      <svg id="curve" class="stagger s2" viewBox="0 0 600 200" role="img" aria-label="Fame curve"></svg>
+      <div class="reveal-facts stagger s3">
+        <p><span class="dim">🫧 Most obvious:</span> <span id="reveal-obvious"></span></p>
+        <p><span class="dim">🌟 The gem was:</span> <span id="reveal-gem" class="t-gem"></span></p>
+      </div>
+      <button id="next-btn" class="primary big stagger s4">Next ⏎</button>
+    </section>
+
+    <!-- FINAL -->
+    <section id="final" class="screen">
+      <p class="dim mono" id="final-mode"></p>
+      <div id="final-score" class="big-score">0</div>
+      <p class="dim" id="final-out-of"></p>
+      <p id="final-band" class="band"></p>
+      <div id="final-emoji" class="tiles"></div>
+      <ol id="final-list"></ol>
+      <div class="final-actions">
+        <button id="share-btn">📋 Copy result</button>
+        <button id="again-btn" class="primary">Play again</button>
+        <button id="home-btn">🏠 Home</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/questions.js"></script>
+  <script src="js/wikidata.js"></script>
+  <script src="js/fuzzy.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
