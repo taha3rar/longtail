@@ -5,11 +5,13 @@ Prompts like *Name an animal starting with P* or *Name a Tom Hanks movie*: valid
 
 ## Play
 
-Open `index.html` in a browser (double-click works, no server or build needed). Needs an internet connection. 🔊 toggles sound.
+**▶ https://taha3rar.github.io/longtail/**
+
+Or open `index.html` locally (double-click works, no server or build needed). Needs an internet connection. 🔊 toggles sound.
 
 ## Rules
 
-- **Dive**: 7 random prompts. **Daily**: the same 7 for everyone on a given date. **Endless**: keep going until 3 misses. Or pick a category (including 🔤 Letters).
+- **Dive**: 7 random prompts. **Daily**: the same 7 for everyone on a given date. **Endless**: keep going until 3 misses. **Seeded**: type a seed (or roll 🎲 for one). The same seed gives everyone the same 7 prompts and hidden gems, so you can compete with friends. The result you copy includes a link like `?seed=salty-otter-42` that opens straight into that seed. Or pick a category (including 🔤 Letters).
 - 3-2-1, then 25 seconds. Type an answer and press **Enter**. The game asks "Lock in X?" (or "Did you mean X?", or "Which one?"). Press **Enter** again to lock it in.
 - If time runs out while an answer is waiting to be confirmed, it counts. Editing or deleting the text cancels it.
 - Tiers: Obvious 10 · Too Clever 15 · Common 30 · Rare 60 · Deep Cut 85 · The Gem 100 (one hidden answer per prompt).
